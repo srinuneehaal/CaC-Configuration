@@ -73,7 +73,7 @@ jobs:
         env:
           CHANGEDFILES: ${{ steps.diff.outputs.files }}
         run: |
-          java -jar ../cac-ex.jar
+          java -jar ../cac-ex.jar --plan
 
       - name: Upload master plan artifact
         if: steps.diff.outputs.has_changes == 'true'
