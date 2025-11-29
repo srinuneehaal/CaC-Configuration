@@ -4,7 +4,7 @@
     {
       "code": "AborCode",
       "displayName": "Standard Abor",
-      "description": "A standard Abor1 changed",
+      "description": "A standard Abor changed",
       "portfolioIds": [
         {
           "scope": "portfolioScope",

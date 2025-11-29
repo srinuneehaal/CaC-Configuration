@@ -71,7 +71,7 @@ jobs:
         if: steps.diff.outputs.has_changes == 'true'
         working-directory: configs
         env:
-          CHANGEDFILES: ${{ steps.diff.outputs.files }}
+          CHANGED_FILES: ${{ steps.diff.outputs.files }}
         run: |
           java -jar ../cac-ex.jar --plan
 
