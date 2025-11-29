@@ -81,6 +81,7 @@ jobs:
         with:
           name: masterplan
           path: configs/plan/masterplan.json
+          if-no-files-found: error
 
   approval:
     needs: build-plan
@@ -116,6 +117,15 @@ jobs:
           name: masterplan
           path: masterplan
 
+      - name: Verify downloaded master plan
+        run: |
+          set -euo pipefail
+          tree masterplan || true
+          if [ ! -f "masterplan/configs/plan/masterplan.json" ]; then
+            echo "masterplan.json not found in downloaded artifact"
+            exit 1
+          fi
+
       - name: Download plan generator jar
         run: |
           curl -fL --retry 3 -o cac-ex.jar https://github.com/srinuneehaal/CaC-Patterns/releases/latest/download/cac-ex-0.0.1-SNAPSHOT.jar
@@ -123,4 +133,4 @@ jobs:
       - name: Apply master plan
         working-directory: configs
         run: |
-          java -jar ../cac-ex.jar --apply ../masterplan/masterplan.json
+          java -jar ../cac-ex.jar --apply ../masterplan/configs/plan/masterplan.json
