@@ -10,6 +10,8 @@ permissions:
 
 jobs:
   build-plan:
+    outputs:
+      has_changes: ${{ steps.diff.outputs.has_changes }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -68,9 +70,9 @@ jobs:
         if: steps.diff.outputs.has_changes == 'true'
         working-directory: configs
         env:
-          CHANGED_FILES: ${{ steps.diff.outputs.files }}
+          CHANGEDFILES: ${{ steps.diff.outputs.files }}
         run: |
-          java -jar ../cac-ex.jar --plan
+          java -jar ../cac-ex.jar
 
       - name: Upload master plan artifact
         if: steps.diff.outputs.has_changes == 'true'
@@ -78,3 +80,46 @@ jobs:
         with:
           name: masterplan
           path: configs/plan/masterplan.json
+
+  approval:
+    needs: build-plan
+    if: needs.build-plan.outputs.has_changes == 'true'
+    outputs:
+      has_changes: ${{ needs.build-plan.outputs.has_changes }}
+    runs-on: ubuntu-latest
+    environment: apply-plan-approval
+    steps:
+      - name: Await approval to apply master plan
+        run: echo "Approval required via environment protection to proceed with apply-plan job."
+
+  apply-plan:
+    needs:
+      - approval
+    if: needs.approval.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Download master plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: masterplan
+          path: masterplan
+
+      - name: Download plan generator jar
+        run: |
+          curl -fL --retry 3 -o cac-ex.jar https://github.com/srinuneehaal/CaC-Patterns/releases/latest/download/cac-ex-0.0.1-SNAPSHOT.jar
+
+      - name: Apply master plan
+        working-directory: configs
+        run: |
+          java -jar ../cac-ex.jar --apply ../masterplan/masterplan.json
