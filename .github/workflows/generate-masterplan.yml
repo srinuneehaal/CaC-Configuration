@@ -118,13 +118,17 @@ jobs:
           path: masterplan
 
       - name: Verify downloaded master plan
+        id: locate
         run: |
           set -euo pipefail
           tree masterplan || true
-          if [ ! -f "masterplan/configs/plan/masterplan.json" ]; then
+          plan_file="$(find masterplan -type f -name masterplan.json | head -n 1)"
+          if [ -z "$plan_file" ]; then
             echo "masterplan.json not found in downloaded artifact"
             exit 1
           fi
+          echo "Found plan at $plan_file"
+          echo "path=$plan_file" >> "$GITHUB_OUTPUT"
 
       - name: Download plan generator jar
         run: |
@@ -132,5 +136,7 @@ jobs:
 
       - name: Apply master plan
         working-directory: configs
+        env:
+          PLAN_FILE: ${{ steps.locate.outputs.path }}
         run: |
-          java -jar ../cac-ex.jar --apply ../masterplan/configs/plan/masterplan.json
+          java -jar ../cac-ex.jar --apply "../$PLAN_FILE"
