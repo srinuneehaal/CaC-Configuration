@@ -1,0 +1,18 @@
+{
+  "scope" : "ATG",
+  "chartOfAccountsCode" : "USG",
+  "chartOfAccountsRequest" : {
+    "code" : "ChartOfAccounts",
+    "displayName" : "ChartOfAccountsName",
+    "description" : "Standard COA",
+    "properties" : {
+      "ChartOfAccounts/MyScope/FundManagerName" : {
+        "key" : "ChartOfAccounts/MyScope/FundManagerName",
+        "value" : {
+          "labelValue" : "Smith"
+        },
+        "effectiveFrom" : 1520208000.000000000
+      }
+    }
+  }
+}
